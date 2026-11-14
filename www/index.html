@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hora do Remédio</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:italic;font-weight:400;font-display:swap;src:url(fonts/atkinson-hyperlegible-latin-400-italic.woff2) format("woff2")}
+</style>
+<style>
+:root{
+  --bg:#F5EFE6; --card:#FFFFFF; --ink:#1C2629; --muted:#55636A; --line:#E0D6C7;
+  --brand:#0E5A57; --brand-2:#0A4441; --brand-soft:#DCEDEA;
+  --ok:#1D7238; --ok-bg:#E2F2E6; --late:#9E3418; --late-bg:#FBE4DA;
+  --warn-bg:#FFF1CC; --warn:#6B4B00; --shadow:0 2px 0 rgba(28,38,41,.06), 0 6px 18px rgba(28,38,41,.06);
+}
+*{box-sizing:border-box}
+html{font-size:19px;-webkit-text-size-adjust:100%}
+html.big{font-size:23px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;padding-bottom:6.2rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:40rem;margin:0 auto;padding:0 1rem}
+.hidden{display:none!important}
+
+/* header */
+header{background:var(--brand);color:#fff;padding:calc(1rem + env(safe-area-inset-top)) 0 1.1rem}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.app{font-weight:700;font-size:1.05rem;letter-spacing:.01em;display:flex;align-items:center;gap:.45rem}
+.app svg{width:1.3rem;height:1.3rem}
+.clock{font-size:2.6rem;font-weight:700;line-height:1;margin-top:.6rem;font-variant-numeric:tabular-nums}
+.date{opacity:.9;margin-top:.25rem}
+.fontbtn{background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.4);color:#fff;border-radius:.7rem;min-height:2.6rem;padding:0 .8rem;font-weight:700}
+
+.soundbar{display:block;width:100%;border:0;background:var(--warn-bg);color:var(--warn);font-weight:700;padding:.85rem 1rem;text-align:left;border-bottom:2px solid #F1DB9C}
+.soundbar span{font-weight:400;display:block;font-size:.85rem;margin-top:.1rem}
+
+main{padding-top:1.1rem}
+h2.sec{font-size:1.25rem;margin:1.5rem 0 .6rem}
+h3.period{font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1.4rem 0 .5rem}
+
+/* hero */
+.hero{border-radius:1.1rem;padding:1.1rem 1.15rem;box-shadow:var(--shadow);background:var(--card);border:2px solid var(--line)}
+.hero.next{background:var(--brand-soft);border-color:#B7D8D3}
+.hero.late{background:var(--late-bg);border-color:#F0BFAE}
+.hero.done{background:var(--ok-bg);border-color:#B9DEC3}
+.hero .lbl{font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em}
+.hero.next .lbl{color:var(--brand)} .hero.late .lbl{color:var(--late)} .hero.done .lbl{color:var(--ok)}
+.hero .big{font-size:1.5rem;font-weight:700;margin-top:.25rem;line-height:1.2}
+.hero .sub{color:var(--muted);margin-top:.2rem}
+.progress{margin-top:1rem}
+.bar{height:.75rem;border-radius:1rem;background:rgba(28,38,41,.1);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:1rem;transition:width .3s}
+.progress p{margin:.4rem 0 0;color:var(--muted);font-size:.95rem}
+
+/* dose card */
+.dose{display:grid;grid-template-columns:auto 1fr;gap:.2rem .9rem;background:var(--card);border:2px solid var(--line);border-radius:1rem;padding:.95rem 1rem;margin-bottom:.75rem;box-shadow:var(--shadow)}
+.dose-time{font-size:1.45rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;padding-top:.1rem}
+.dose-body{display:flex;gap:.75rem;align-items:flex-start;min-width:0}
+.thumb{width:3.2rem;height:3.2rem;border-radius:.6rem;object-fit:cover;flex:none;border:1px solid var(--line);background:#eee}
+.pill-ico{width:3.2rem;height:3.2rem;border-radius:.6rem;flex:none;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.pill-ico svg{width:1.7rem;height:1.7rem}
+.dose-name{font-weight:700;font-size:1.1rem;line-height:1.2;word-break:break-word}
+.dose-qty{font-size:1.05rem;margin-top:.15rem}
+.dose-note{color:var(--muted);font-size:.92rem;margin-top:.2rem;font-style:italic}
+.dose-act{grid-column:1/-1;margin-top:.6rem}
+.dose.s-taken{background:#F7FBF8;border-color:#C9E5D1}
+.dose.s-taken .dose-time{color:var(--ok)}
+.dose.s-late{border-color:#EFB9A6}
+.dose.s-late .dose-time{color:var(--late)}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:.15rem .55rem;border-radius:2rem;margin-top:.35rem}
+.tag.late{background:var(--late-bg);color:var(--late)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:3.3rem;padding:.6rem 1.2rem;border-radius:.85rem;border:2px solid transparent;font-weight:700;font-size:1.05rem}
+.btn.full{width:100%}
+.btn.take{background:var(--ok);color:#fff}
+.btn.take:active{background:#155a2b}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.primary:active{background:var(--brand-2)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.danger{background:var(--late);color:#fff}
+.btn.small{min-height:2.7rem;font-size:.95rem;padding:.4rem .9rem}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #E8A33D;outline-offset:2px}
+.taken-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;color:var(--ok);font-weight:700}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:.92rem;padding:.5rem}
+
+/* empty */
+.empty{text-align:center;background:var(--card);border:2px dashed var(--line);border-radius:1.1rem;padding:2rem 1.2rem}
+.empty h2{margin:.5rem 0 .3rem;font-size:1.35rem}
+.empty p{color:var(--muted);margin:0 0 1.2rem}
+.empty .stack{display:grid;gap:.6rem}
+
+/* meds list */
+.med{background:var(--card);border:2px solid var(--line);border-radius:1rem;padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)}
+.med-top{display:flex;gap:.75rem;align-items:flex-start}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.chip{background:var(--brand-soft);color:var(--brand-2);font-weight:700;border-radius:.6rem;padding:.25rem .6rem;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;gap:.3rem}
+.chip button{background:none;border:0;color:var(--brand-2);font-size:1.1rem;line-height:1;padding:.1rem .2rem;font-weight:700}
+.med-meta{color:var(--muted);font-size:.9rem;margin-top:.45rem}
+.med-actions{display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap}
+.confirm{background:var(--late-bg);border-radius:.8rem;padding:.75rem;margin-top:.75rem}
+.confirm p{margin:0 0 .6rem;font-weight:700;color:var(--late)}
+.note{background:var(--card);border-left:5px solid var(--brand);border-radius:.6rem;padding:.8rem 1rem;color:var(--muted);font-size:.92rem;margin-top:1.2rem}
+.sync{color:var(--muted);font-size:.85rem;text-align:center;margin-top:1rem}
+
+/* form */
+.form{background:var(--card);border:2px solid var(--line);border-radius:1.1rem;padding:1.1rem;box-shadow:var(--shadow)}
+.field{margin-bottom:1.15rem}
+.field>label,.field>.lab{display:block;font-weight:700;margin-bottom:.35rem}
+.hint{color:var(--muted);font-size:.88rem;margin:-.15rem 0 .45rem}
+.inp{width:100%;min-height:3.1rem;border:2px solid #CFC4B3;border-radius:.75rem;padding:.55rem .8rem;background:#FFFDF9}
+textarea.inp{min-height:4.5rem;resize:vertical}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.row>.inp{flex:1;min-width:6rem}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;background:#EFE8DD;border-radius:.85rem;padding:.3rem;margin-bottom:.7rem}
+.seg button{border:0;background:transparent;border-radius:.65rem;min-height:2.9rem;font-weight:700;color:var(--muted);font-size:.95rem;padding:.3rem .4rem}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.timesbox{background:#FAF6EF;border:2px solid var(--line);border-radius:.8rem;padding:.7rem;margin-top:.6rem}
+.timesbox .lab{font-size:.9rem;color:var(--muted);font-weight:700}
+.err{color:var(--late);font-weight:700;font-size:.92rem;margin-top:.35rem}
+.photo-row{display:flex;align-items:center;gap:.8rem}
+.photo-prev{width:4.5rem;height:4.5rem;border-radius:.7rem;object-fit:cover;border:1px solid var(--line)}
+.check{display:flex;align-items:center;gap:.6rem;min-height:2.8rem}
+.check input{width:1.5rem;height:1.5rem;accent-color:var(--brand)}
+.form-actions{display:grid;gap:.6rem;margin-top:.4rem}
+.fileinp{position:absolute;width:1px;height:1px;opacity:0}
+
+/* history */
+.day{background:var(--card);border:2px solid var(--line);border-radius:1rem;padding:.9rem 1rem;margin-bottom:.65rem}
+.day-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+.day-name{font-weight:700}
+.day-score{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.day .bar{margin-top:.5rem}
+.missed{color:var(--late);font-size:.9rem;margin-top:.45rem}
+.allok{color:var(--ok);font-size:.9rem;margin-top:.45rem;font-weight:700}
+
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--line);z-index:5}
+.tabs .wrap{display:grid;grid-template-columns:repeat(3,1fr);padding:.35rem .5rem calc(.35rem + env(safe-area-inset-bottom))}
+.tab{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:.15rem;min-height:4.4rem;justify-content:center;border-radius:.8rem;color:var(--muted);font-weight:700;font-size:.92rem}
+.tab svg{width:1.6rem;height:1.6rem}
+.tab[aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+
+/* alarm */
+.overlay{position:fixed;inset:0;background:rgba(10,30,29,.78);z-index:20;display:flex;align-items:center;justify-content:center;padding:1rem}
+.alarm{background:#fff;border-radius:1.4rem;width:100%;max-width:32rem;max-height:92vh;overflow:auto;padding:1.4rem 1.2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.bell{width:4.4rem;height:4.4rem;border-radius:50%;background:var(--warn-bg);display:grid;place-items:center;margin:0 auto .5rem;color:#B07800;animation:ring 1.2s ease-in-out infinite}
+.bell svg{width:2.4rem;height:2.4rem}
+@keyframes ring{0%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(9deg)}40%{transform:rotate(-6deg)}50%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.bell{animation:none}}
+.alarm h2{font-size:1.7rem;margin:.2rem 0 .2rem}
+.alarm .when{color:var(--muted);margin-bottom:1rem}
+.aitem{border:2px solid var(--line);border-radius:1rem;padding:1rem;margin-bottom:.8rem;text-align:left}
+.aitem .top{display:flex;gap:.8rem;align-items:center;margin-bottom:.8rem}
+.aitem .thumb,.aitem .pill-ico{width:4rem;height:4rem}
+.aitem .nm{font-size:1.35rem;font-weight:700;line-height:1.2}
+.aitem .qt{font-size:1.2rem;margin-top:.15rem}
+.aitem .nt{color:var(--muted);font-style:italic;margin-top:.15rem}
+.alarm .btn.take{min-height:3.8rem;font-size:1.2rem}
+.alarm-foot{display:grid;gap:.55rem;margin-top:.4rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="app">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-35 12 12)"/><path d="M9.2 8.1l5.6 7.8" /></svg>
+        Hora do Remédio
+      </div>
+      <button class="fontbtn" id="fontBtn" aria-label="Mudar tamanho da letra">A+</button>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+  </div>
+</header>
+
+<button class="soundbar hidden" id="permBar">
+  <span style="font-size:1rem;margin:0;font-weight:700">🔔 Os avisos estão desligados</span>
+  <span>Toque aqui para permitir que o app avise a hora do remédio.</span>
+</button>
+
+<main class="wrap" id="view" aria-live="polite"></main>
+
+<nav class="tabs" aria-label="Menu">
+  <div class="wrap">
+    <button class="tab" data-tab="hoje">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Hoje</button>
+    <button class="tab" data-tab="remedios">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-35 12 12)"/><path d="M9.2 8.1l5.6 7.8"/></svg>Remédios</button>
+    <button class="tab" data-tab="historico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4M8 14l2.2 2.2L16 12.5"/></svg>Histórico</button>
+  </div>
+</nav>
+
+<div class="overlay hidden" id="alarm" role="alertdialog" aria-modal="true" aria-labelledby="alarmTitle">
+  <div class="alarm">
+    <div class="bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div>
+    <h2 id="alarmTitle">Hora do remédio</h2>
+    <div class="when" id="alarmWhen"></div>
+    <div id="alarmList"></div>
+    <div class="alarm-foot">
+      <button class="btn ghost full" id="snoozeBtn">⏰ Lembrar de novo em 10 minutos</button>
+      <button class="btn ghost full" id="speakBtn">🔊 Ouvir o aviso</button>
+    </div>
+  </div>
+</div>
+
+<script src="capacitor.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

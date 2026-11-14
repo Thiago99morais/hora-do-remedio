@@ -1,0 +1,9 @@
+{
+  "appId": "br.horadoremedio.app",
+  "appName": "Hora do Remédio",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_pill", "iconColor": "#0E5A57" }
+  }
+}
