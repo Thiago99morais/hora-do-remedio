@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,3 +43,10 @@ jobs:
         with:
           name: HoraDoRemedio-apk
           path: HoraDoRemedio.apk
+
+      - name: Publicar versão para download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" HoraDoRemedio.apk --title "Hora do Remédio $TAG" --notes "Baixe o arquivo HoraDoRemedio.apk abaixo e instale no celular Android." --latest
